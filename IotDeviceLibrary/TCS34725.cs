@@ -1,9 +1,15 @@
-﻿namespace IotDeviceLibrary
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Windows.Devices.Enumeration;
+using Windows.Devices.I2c;
+
+namespace IotDeviceLibrary
 {
     //https://github.com/adafruit/Adafruit_TCS34725
     public class TCS34725
     {
-        enum gain : byte
+        public enum Gain : byte
         {
             TCS34725_GAIN_1X = 0x00,   /**<  No gain  */
             TCS34725_GAIN_4X = 0x01,   /**<  4x gain  */
@@ -11,7 +17,7 @@
             TCS34725_GAIN_60X = 0x03    /**<  60x gain */
         }
 
-        enum integrationtime : byte
+        public enum IntegrationTime : byte
         {
             TCS34725_INTEGRATIONTIME_2_4MS = 0xFF,   /**<  2.4ms - 1 cycle    - Max Count: 1024  */
             TCS34725_INTEGRATIONTIME_24MS = 0xF6,   /**<  24ms  - 10 cycles  - Max Count: 10240 */
@@ -21,7 +27,7 @@
             TCS34725_INTEGRATIONTIME_700MS = 0x00    /**<  700ms - 256 cycles - Max Count: 65535 */
         }
 
-        enum cycle : byte
+        public enum Cycle : byte
         {
             TCS34725_PERS_NONE = 0,//(0b0000),  /* Every RGBC cycle generates an interrupt                                */
             TCS34725_PERS_1_CYCLE = 1,// (0b0001),  /* 1 clean channel value outside threshold range generates an interrupt   */
@@ -41,7 +47,7 @@
             TCS34725_PERS_60_CYCLE = 15//(0b1111),  /* 60 clean channel values outside threshold range generates an interrupt */
         }
 
-        enum registers : byte
+        public enum Registers : byte
         {
             ENABLE = 0x00,
             ENABLE_AIEN = 0x10, // RGBC Interrupt Enable
@@ -74,5 +80,110 @@
             TCS34725_BDATAL = (0x1A),   /* Blue channel data */
             TCS34725_BDATAH = (0x1B),
         }
+
+        private const byte Address = 0x29;
+        private const byte CommandBit = 0x80;
+
+        private const string I2CControllerName = "I2C1";
+
+        private bool _tcs34725Initialised;
+        private Gain _tcs34725Gain;
+        private IntegrationTime _tcs34725IntegrationTime;
+        private I2cDevice _tcs34725;
+
+        public TCS34725(IntegrationTime time = IntegrationTime.TCS34725_INTEGRATIONTIME_2_4MS, Gain gain = Gain.TCS34725_GAIN_1X)
+        {
+            _tcs34725IntegrationTime = time;
+            _tcs34725Gain = gain;
+            _tcs34725Initialised = false;
+        }
+
+        public async Task Initilize()
+        {
+
+            Debug.WriteLine("TCS34725 initialized");
+            try
+            {
+                I2cConnectionSettings settings = new I2cConnectionSettings(Address);
+
+                settings.BusSpeed = I2cBusSpeed.FastMode;
+
+                String aqs = I2cDevice.GetDeviceSelector(I2CControllerName);
+
+                DeviceInformationCollection dis = await DeviceInformation.FindAllAsync(aqs);
+
+                _tcs34725 = await I2cDevice.FromIdAsync(dis[0].Id, settings);
+
+                if (_tcs34725 == null)
+                {
+                    Debug.WriteLine("Device not found");
+                }
+                _tcs34725Initialised = true;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception: " + e.Message + "\n" + e.StackTrace);
+                throw;
+            }
+        }
+
+        public void SetGain(Gain gain)
+        {
+            _tcs34725Gain = gain;
+        }
+
+        public void SetIntegrationTime(IntegrationTime time)
+        {
+            _tcs34725IntegrationTime = time;
+        }
+
+
+        /**************************************************************************/
+        /*! 
+            @brief  Reads an 8 bit value over I2C 
+        */
+        /**************************************************************************/
+        byte Read(byte reg)
+        {
+            byte[] writeBuffer = new byte[] { 0x00 };
+            byte[] readBuffer = new byte[] { 0x00 };
+            writeBuffer[0] = reg;
+            _tcs34725.WriteRead(writeBuffer, readBuffer);
+            var value = readBuffer[0];
+            return value;
+        }
+
+
+        public void Write(byte register, byte data)
+        {
+            byte[] writeBuffer = new byte[] { register, data };
+            _tcs34725.Write(writeBuffer);
+        }
+        /**************************************************************************/
+        /*! 
+            Enables the device 
+        */
+        /**************************************************************************/
+        async void Enable()
+        {
+            Write((byte)Registers.ENABLE, (byte)Registers.TCS34725_ENABLE_PON);
+            await Task.Delay(3);
+            Write((byte)Registers.ENABLE, (byte)Registers.TCS34725_ENABLE_PON | (byte)Registers.TCS34725_ENABLE_AEN);
+        }
+
+
+        /**************************************************************************/
+        /*! 
+            Disables the device (putting it in lower power sleep mode) 
+        */
+        /**************************************************************************/
+        async void Disable()
+        {
+            /* Turn the device off to save power */
+            uint8_t reg = 0;
+            reg = read8(TCS34725_ENABLE);
+            write8(TCS34725_ENABLE, reg & ~(TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN));
+        }
+
     }
 }
