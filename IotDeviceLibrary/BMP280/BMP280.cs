@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.I2c;
 
-namespace IotDeviceLibrary
+namespace IotDeviceLibrary.BMP280
 {
-    class BMP280_CalibrationData
+    public class BMP280_CalibrationData
     {
         //BMP280 Registers
         public UInt16 DigT1 { get; set; }
@@ -25,7 +25,7 @@ namespace IotDeviceLibrary
     }
 
 
-    public class BMP280
+    public class BMP280 : Device, IBMP280
     {
         //The BMP280 register addresses according the the datasheet: http://www.adafruit.com/datasheets/BST-BMP280-DS001-11.pdf
         const byte BMP280_Address = 0x77;
@@ -68,17 +68,12 @@ namespace IotDeviceLibrary
             BMP280_REGISTER_HUMIDDATA_MSB = 0xFD,
             BMP280_REGISTER_HUMIDDATA_LSB = 0xFE,
         };
-
-
+        
         private const string I2CControllerName = "I2C1";
-
-        private I2cDevice _bmp280 = null;
-
+        
         BMP280_CalibrationData _calibrationData;
 
-        private bool _init = false;
-
-        public async Task Initialize()
+        public override async Task Initialize()
         {
             Debug.WriteLine("BMP280 initialized");
             try
@@ -91,9 +86,9 @@ namespace IotDeviceLibrary
 
                 DeviceInformationCollection dis = await DeviceInformation.FindAllAsync(aqs);
 
-                _bmp280 = await I2cDevice.FromIdAsync(dis[0].Id, settings);
+                I2CDevice = await I2cDevice.FromIdAsync(dis[0].Id, settings);
 
-                if (_bmp280 == null)
+                if (I2CDevice == null)
                 {
                     Debug.WriteLine("Device not found");
                 }
@@ -105,13 +100,13 @@ namespace IotDeviceLibrary
             }
         }
 
-        private async Task Begin()
+        public override async Task Begin()
         {
             Debug.WriteLine("BMP28::BEGIN");
             byte[] writeBuffer = new byte[] { (byte)eRegisters.BMP280_REGISTER_CHIPID };
             byte[] readBuffer = new byte[] { 0xFF };
 
-            _bmp280.WriteRead(writeBuffer, readBuffer);
+            I2CDevice.WriteRead(writeBuffer, readBuffer);
             Debug.WriteLine("BMP280 Signature: " + readBuffer[0].ToString());
 
             if (readBuffer[0] != BMP280_Signature)
@@ -121,7 +116,7 @@ namespace IotDeviceLibrary
                     return;
                 }
             }
-            _init = true;
+            initialised = true;
 
             //Read the coefficients table
             _calibrationData = await ReadCoefficeints();
@@ -137,7 +132,7 @@ namespace IotDeviceLibrary
         private async Task WriteControlRegisterHumidity()
         {
             byte[] writeBuffer = new byte[] { (byte)eRegisters.BMP280_REGISTER_CONTROLHUMID, 0x03 };
-            _bmp280.Write(writeBuffer);
+            I2CDevice.Write(writeBuffer);
             await Task.Delay(1);
             return;
         }
@@ -146,7 +141,7 @@ namespace IotDeviceLibrary
         private async Task WriteControlRegister()
         {
             byte[] writeBuffer = new byte[] { (byte)eRegisters.BMP280_REGISTER_CONTROL, 0x3F };
-            _bmp280.Write(writeBuffer);
+            I2CDevice.Write(writeBuffer);
             await Task.Delay(1);
             return;
         }
@@ -160,31 +155,19 @@ namespace IotDeviceLibrary
 
             writeBuffer[0] = register;
 
-            _bmp280.WriteRead(writeBuffer, readBuffer);
+            I2CDevice.WriteRead(writeBuffer, readBuffer);
             int h = readBuffer[1] << 8;
             int l = readBuffer[0];
             value = (UInt16)(h + l);
             return value;
         }
 
-        //Method to read an 8-bit value from a register
-        private byte ReadByte(byte register)
-        {
-            byte value = 0;
-            byte[] writeBuffer = new byte[] { 0x00 };
-            byte[] readBuffer = new byte[] { 0x00 };
 
-            writeBuffer[0] = register;
-
-            _bmp280.WriteRead(writeBuffer, readBuffer);
-            value = readBuffer[0];
-            return value;
-        }
 
         public async Task<float> ReadTemperature()
         {
             //Make sure the I2C device is initialized
-            if (!_init) await Begin();
+            if (!initialised) await Begin();
 
             //Read the MSB, LSB and bits 7:4 (XLSB) of the temperature from the BMP280 registers
             byte tmsb = ReadByte((byte)eRegisters.BMP280_REGISTER_TEMPDATA_MSB);
@@ -204,7 +187,7 @@ namespace IotDeviceLibrary
         public async Task<float> ReadPreasure()
         {
             //Make sure the I2C device is initialized
-            if (!_init) await Begin();
+            if (!initialised) await Begin();
 
             //Read the temperature first to load the t_fine value for compensation
             if (t_fine == Int32.MinValue)
@@ -227,11 +210,16 @@ namespace IotDeviceLibrary
             return ((float)pres) / 256;
         }
 
+        public Task<Single> ReadAltitude()
+        {
+            throw new NotImplementedException();
+        }
+
         //Method to take the sea level pressure in Hectopascals(hPa) as a parameter and calculate the altitude using current pressure.
         public async Task<float> ReadAltitude(float seaLevel)
         {
             //Make sure the I2C device is initialized
-            if (!_init) await Begin();
+            if (!initialised) await Begin();
 
             //Read the pressure first
             float pressure = await ReadPreasure();
@@ -243,7 +231,7 @@ namespace IotDeviceLibrary
         }
 
         //Method to read the caliberation data from the registers
-        private async Task<BMP280_CalibrationData> ReadCoefficeints()
+        public async Task<BMP280_CalibrationData> ReadCoefficeints()
         {
             // 16 bit calibration data is stored as Little Endian, the helper method will do the byte swap.
             _calibrationData = new BMP280_CalibrationData();

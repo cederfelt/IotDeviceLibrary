@@ -107,9 +107,14 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BMP280.cs" />
+    <Compile Include="BMP280\BMP280.cs" />
+    <Compile Include="BMP280\IBMP280.cs" />
+    <Compile Include="Device.cs" />
+    <Compile Include="IDevice.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TCS34725.cs" />
+    <Compile Include="TCS34725\ITCS34725.cs" />
+    <Compile Include="TCS34725\TCS34725.cs" />
+    <Compile Include="TCS34725\TCS34725Color.cs" />
     <EmbeddedResource Include="Properties\IotDeviceLibrary.rd.xml" />
   </ItemGroup>
   <ItemGroup>
