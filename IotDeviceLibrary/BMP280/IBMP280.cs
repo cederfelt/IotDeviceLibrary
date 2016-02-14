@@ -6,7 +6,7 @@ namespace IotDeviceLibrary.BMP280
     {
         Task<float> ReadTemperature();
         Task<float> ReadPreasure();
-        Task<float> ReadAltitude();
+        Task<float> ReadAltitude(float seaLevel);
         Task<BMP280_CalibrationData> ReadCoefficeints();
     }
 }

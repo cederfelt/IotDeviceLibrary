@@ -209,12 +209,7 @@ namespace IotDeviceLibrary.BMP280
             //Return the temperature as a float value
             return ((float)pres) / 256;
         }
-
-        public Task<Single> ReadAltitude()
-        {
-            throw new NotImplementedException();
-        }
-
+        
         //Method to take the sea level pressure in Hectopascals(hPa) as a parameter and calculate the altitude using current pressure.
         public async Task<float> ReadAltitude(float seaLevel)
         {
