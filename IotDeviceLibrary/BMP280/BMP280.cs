@@ -102,7 +102,7 @@ namespace IotDeviceLibrary.BMP280
 
         public override async Task Begin()
         {
-            Debug.WriteLine("BMP28::BEGIN");
+            Debug.WriteLine("BMP280::BEGIN");
             byte[] writeBuffer = new byte[] { (byte)eRegisters.BMP280_REGISTER_CHIPID };
             byte[] readBuffer = new byte[] { 0xFF };
 
@@ -161,9 +161,7 @@ namespace IotDeviceLibrary.BMP280
             value = (UInt16)(h + l);
             return value;
         }
-
-
-
+        
         public async Task<float> ReadTemperature()
         {
             //Make sure the I2C device is initialized
