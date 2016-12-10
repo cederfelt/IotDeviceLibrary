@@ -108,8 +108,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BME280\BME280.cs" />
+    <Compile Include="BME280\BME280CalibrationData.cs" />
     <Compile Include="BME280\IBME280.cs" />
     <Compile Include="BMP280\BMP280.cs" />
+    <Compile Include="BMP280\BMP280CalibrationData.cs" />
     <Compile Include="BMP280\IBMP280.cs" />
     <Compile Include="Device.cs" />
     <Compile Include="IDevice.cs" />

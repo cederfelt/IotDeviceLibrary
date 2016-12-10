@@ -7,13 +7,13 @@ using Windows.Devices.I2c;
 namespace IotDeviceLibrary.BME280
 {
     //https://github.com/adafruit/Adafruit_BME280_Library
-    class Bme280 : Device, IBME280
+    public class Bme280 : Device, IBME280
     {
 
-        byte _i2Caddr;
-        int _sensorId;
-        UInt32 _tFine;
-        Bme280CalibData _bme280Calib;
+        private byte _i2Caddr;
+        private int _sensorId;
+        private uint _tFine;
+        private Bme280CalibrationData _bme280Calib;
         private const string I2CControllerName = "I2C1";
 
         /*=========================================================================
@@ -62,33 +62,7 @@ namespace IotDeviceLibrary.BME280
             RegisterHumiddata = 0xFD,
         };
 
-        public struct Bme280CalibData
-        {
-            //    public /*uint16_t*/ UInt16 dig_T1;
-            public /*uint16_t*/ short DigT1;
-            public short DigT2;
-            public short DigT3;
-
-            //public /*uint16_t*/ UInt16 dig_P1;
-            public /*uint16_t*/ short DigP1;
-            public short DigP2;
-            public short DigP3;
-            public short DigP4;
-            public short DigP5;
-            public short DigP6;
-            public short DigP7;
-            public short DigP8;
-            public short DigP9;
-
-            // public /*uint8_t*/ UInt16 dig_H1;
-            public /*uint8_t*/ short DigH1;
-            public short DigH2;
-            // public /*uint8_t*/ UInt16 dig_H3;
-            public /*uint8_t*/ short DigH3;
-            public byte DigH4;
-            public byte DigH5;
-            public byte DigH6;
-        }
+      
 
         public override async Task Initialize()
         {
@@ -117,7 +91,7 @@ namespace IotDeviceLibrary.BME280
             }
         }
 
-        public override async Task Begin()
+        public override void Begin()
         {
             Debug.WriteLine("BME280::BEGIN");
             byte[] writeBuffer = new byte[] { (byte)Registers.RegisterChipid };
@@ -143,83 +117,7 @@ namespace IotDeviceLibrary.BME280
             // await WriteControlRegister();
         }
 
-        /**************************************************************************/
-        /*! 
-            @brief  Reads a 16 bit value over I2C 
-        */
-        /**************************************************************************/
-        short Read16(byte register) 
-        {
-            UInt16 value;
 
-            byte[] writeBuffer = new byte[] { 0x00 };
-            byte[] readBuffer = new byte[] { 0x00, 0x00 };
-
-            writeBuffer[0] = register;
-
-            I2CDevice.WriteRead(writeBuffer, readBuffer);
-            int h = readBuffer[1] << 8;
-            int l = readBuffer[0];
-            value = (UInt16)(h + l);
-
-            //TODO MIGHT SUPPORT SPI LATER
-            /*
-              } else { 
-                if (_sck == -1) 
-                  SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0)); 
-                digitalWrite(_cs, LOW); 
-                spixfer(reg | 0x80); // read, bit 7 high 
-                value = (spixfer(0) << 8) | spixfer(0); 
-                digitalWrite(_cs, HIGH); 
-                if (_sck == -1) 
-                 SPI.endTransaction();              // release the SPI bus 
-              } */
-
-
-            return (short)value;
-        }
-
-        /**************************************************************************/
-        /*! 
-            @brief  Reads a 24 bit value over I2C 
-        */
-        /**************************************************************************/
-        UInt32 read24(byte register)
-        {
-            UInt32 value;
-
-            byte[] writeBuffer = new byte[] { 0x00 };
-            byte[] readBuffer = new byte[] { 0x00, 0x00 };
-
-            writeBuffer[0] = register;
-
-            I2CDevice.WriteRead(writeBuffer, readBuffer);
-            value = readBuffer[2];
-            value <<= 8;
-            value = readBuffer[1];
-            value <<= 8;
-            value = readBuffer[0];
-
-            //TODO SPI
-            /*} else { 
-              if (_sck == -1) 
-                SPI.beginTransaction(SPISettings(500000, MSBFIRST, SPI_MODE0)); 
-              digitalWrite(_cs, LOW); 
-              spixfer(reg | 0x80); // read, bit 7 high 
-
-              value = spixfer(0); 
-              value <<= 8; 
-              value |= spixfer(0); 
-              value <<= 8; 
-              value |= spixfer(0); 
-
-
-              digitalWrite(_cs, HIGH); 
-              if (_sck == -1) 
-                SPI.endTransaction();              // release the SPI bus 
-            } */
-            return value;
-        }
 
         /**************************************************************************/
         /*! 
@@ -229,25 +127,25 @@ namespace IotDeviceLibrary.BME280
         private void ReadCoefficients()
         {
             _bme280Calib.DigT1 = Read16((byte)Registers.RegisterDigT1);
-            _bme280Calib.DigT2 = Read16((byte)Registers.RegisterDigT2);
-            _bme280Calib.DigT3 = Read16((byte)Registers.RegisterDigT3);
+            _bme280Calib.DigT2 = (short)Read16((byte)Registers.RegisterDigT2);
+            _bme280Calib.DigT3 = (short)Read16((byte)Registers.RegisterDigT3);
 
             _bme280Calib.DigP1 = Read16((byte)Registers.RegisterDigP1);
-            _bme280Calib.DigP2 = Read16((byte)Registers.RegisterDigP2);
-            _bme280Calib.DigP3 = Read16((byte)Registers.RegisterDigP3);
-            _bme280Calib.DigP4 = Read16((byte)Registers.RegisterDigP4);
-            _bme280Calib.DigP5 = Read16((byte)Registers.RegisterDigP5);
-            _bme280Calib.DigP6 = Read16((byte)Registers.RegisterDigP6);
-            _bme280Calib.DigP7 = Read16((byte)Registers.RegisterDigP7);
-            _bme280Calib.DigP8 = Read16((byte)Registers.RegisterDigP8);
-            _bme280Calib.DigP9 = Read16((byte)Registers.RegisterDigP9);
+            _bme280Calib.DigP2 = (short)Read16((byte)Registers.RegisterDigP2);
+            _bme280Calib.DigP3 = (short)Read16((byte)Registers.RegisterDigP3);
+            _bme280Calib.DigP4 = (short)Read16((byte)Registers.RegisterDigP4);
+            _bme280Calib.DigP5 = (short)Read16((byte)Registers.RegisterDigP5);
+            _bme280Calib.DigP6 = (short)Read16((byte)Registers.RegisterDigP6);
+            _bme280Calib.DigP7 = (short)Read16((byte)Registers.RegisterDigP7);
+            _bme280Calib.DigP8 = (short)Read16((byte)Registers.RegisterDigP8);
+            _bme280Calib.DigP9 = (short)Read16((byte)Registers.RegisterDigP9);
 
-            _bme280Calib.DigH1 = ReadByte((byte)Registers.RegisterDigH1);
-            _bme280Calib.DigH2 = Read16((byte)Registers.RegisterDigH2);
-            _bme280Calib.DigH3 = ReadByte((byte)Registers.RegisterDigH3);
-            _bme280Calib.DigH4 = (byte)((ReadByte((byte)Registers.RegisterDigH4) << 4) | (ReadByte((byte)Registers.RegisterDigH4 + 1) & 0xF));
-            _bme280Calib.DigH5 = (byte)((ReadByte((byte)Registers.RegisterDigH5 + 1) << 4) | (ReadByte((byte)Registers.RegisterDigH5) >> 4));
-            _bme280Calib.DigH6 = (byte)ReadByte((byte)Registers.RegisterDigH6);
+            _bme280Calib.DigH1 = Read8((byte)Registers.RegisterDigH1);
+            _bme280Calib.DigH2 = (short)Read16((byte)Registers.RegisterDigH2);
+            _bme280Calib.DigH3 = Read8((byte)Registers.RegisterDigH3);
+            _bme280Calib.DigH4 = (byte)((Read8((byte)Registers.RegisterDigH4) << 4) | (Read8((byte)Registers.RegisterDigH4 + 1) & 0xF));
+            _bme280Calib.DigH5 = (byte)((Read8((byte)Registers.RegisterDigH5 + 1) << 4) | (Read8((byte)Registers.RegisterDigH5) >> 4));
+            _bme280Calib.DigH6 = (byte)Read8((byte)Registers.RegisterDigH6);
         }
 
         /**************************************************************************/
@@ -257,16 +155,16 @@ namespace IotDeviceLibrary.BME280
         /**************************************************************************/
         double ReadTemperature()
         {
-            UInt32 var1, var2;
+            uint var1, var2;
 
-            UInt32 adc_T = read24((byte)Registers.RegisterTempdata);
+            uint adc_T = Read24((byte)Registers.RegisterTempdata);
             adc_T >>= 4;
 
-            var1 = ((((adc_T >> 3) - (UInt32)_bme280Calib.DigT1 << 1)) * ((UInt32)_bme280Calib.DigT2)) >> 11;
+            var1 = ((((adc_T >> 3) - _bme280Calib.DigT1 << 1)) * ((uint)_bme280Calib.DigT2)) >> 11;
 
-            var2 = (((((adc_T >> 4) - ((UInt32)_bme280Calib.DigT1)) *
-                   ((adc_T >> 4) - ((UInt32)_bme280Calib.DigT1))) >> 12) *
-                 ((UInt32)_bme280Calib.DigT3)) >> 14;
+            var2 = (((((adc_T >> 4) - (_bme280Calib.DigT1)) *
+                   ((adc_T >> 4) - (_bme280Calib.DigT1))) >> 12) *
+                 ((uint)_bme280Calib.DigT3)) >> 14;
 
             _tFine = var1 + var2;
 
@@ -281,20 +179,20 @@ namespace IotDeviceLibrary.BME280
         /**************************************************************************/
         float readPressure()
         {
-            UInt64 var1, var2, p;
+            ulong var1, var2, p;
 
             ReadTemperature(); // must be done first to get t_fine
 
-            UInt32 adc_P = read24((byte)Registers.RegisterPressuredata);
+            uint adc_P = Read24((byte)Registers.RegisterPressuredata);
             adc_P >>= 4;
 
-            var1 = ((UInt64)_tFine) - 128000;
-            var2 = var1 * var1 * (UInt64)_bme280Calib.DigP6;
-            var2 = var2 + ((var1 * (UInt64)_bme280Calib.DigP5) << 17);
-            var2 = var2 + (((UInt64)_bme280Calib.DigP4) << 35);
-            var1 = ((var1 * var1 * (UInt64)_bme280Calib.DigP3) >> 8) +
-              ((var1 * (UInt64)_bme280Calib.DigP2) << 12);
-            var1 = (((((UInt64)1) << 47) + var1)) * ((UInt64)_bme280Calib.DigP1) >> 33;
+            var1 = ((ulong)_tFine) - 128000;
+            var2 = var1 * var1 * (ulong)_bme280Calib.DigP6;
+            var2 = var2 + ((var1 * (ulong)_bme280Calib.DigP5) << 17);
+            var2 = var2 + (((ulong)_bme280Calib.DigP4) << 35);
+            var1 = ((var1 * var1 * (ulong)_bme280Calib.DigP3) >> 8) +
+              ((var1 * (ulong)_bme280Calib.DigP2) << 12);
+            var1 = (((((ulong)1) << 47) + var1)) * ((ulong)_bme280Calib.DigP1) >> 33;
 
             if (var1 == 0)
             {
@@ -302,10 +200,10 @@ namespace IotDeviceLibrary.BME280
             }
             p = 1048576 - adc_P;
             p = (((p << 31) - var2) * 3125) / var1;
-            var1 = (((UInt64)_bme280Calib.DigP9) * (p >> 13) * (p >> 13)) >> 25;
-            var2 = (((UInt64)_bme280Calib.DigP8) * p) >> 19;
+            var1 = (((ulong)_bme280Calib.DigP9) * (p >> 13) * (p >> 13)) >> 25;
+            var2 = (((ulong)_bme280Calib.DigP8) * p) >> 19;
 
-            p = ((p + var1 + var2) >> 8) + (((UInt64)_bme280Calib.DigP7) << 4);
+            p = ((p + var1 + var2) >> 8) + (((ulong)_bme280Calib.DigP7) << 4);
             return (float)p / 256;
         }
 
@@ -320,18 +218,18 @@ namespace IotDeviceLibrary.BME280
 
             int adc_H = Read16((byte)Registers.RegisterControlhumid);
 
-            UInt32 v_x1_u32r;
+            uint v_x1_u32r;
 
-            v_x1_u32r = (_tFine - ((UInt32)76800));
+            v_x1_u32r = (_tFine - ((uint)76800));
 
-            v_x1_u32r = (UInt32)(((((adc_H << 14) - (((UInt32)_bme280Calib.DigH4) << 20) -
-                    (((UInt32)_bme280Calib.DigH5) * v_x1_u32r)) + ((UInt32)16384)) >> 15) *
-                     (((((((v_x1_u32r * ((UInt32)_bme280Calib.DigH6)) >> 10) *
-                      (((v_x1_u32r * ((UInt32)_bme280Calib.DigH3)) >> 11) + ((UInt32)32768))) >> 10) +
-                    ((UInt32)2097152)) * ((UInt32)_bme280Calib.DigH2) + 8192) >> 14));
+            v_x1_u32r = (uint)(((((adc_H << 14) - (((uint)_bme280Calib.DigH4) << 20) -
+                    (((uint)_bme280Calib.DigH5) * v_x1_u32r)) + ((uint)16384)) >> 15) *
+                     (((((((v_x1_u32r * ((uint)_bme280Calib.DigH6)) >> 10) *
+                      (((v_x1_u32r * ((uint)_bme280Calib.DigH3)) >> 11) + ((uint)32768))) >> 10) +
+                    ((uint)2097152)) * ((uint)_bme280Calib.DigH2) + 8192) >> 14));
 
             v_x1_u32r = (v_x1_u32r - (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) *
-                           ((UInt32)_bme280Calib.DigH1)) >> 4));
+                           ((uint)_bme280Calib.DigH1)) >> 4));
 
             v_x1_u32r = (v_x1_u32r < 0) ? 0 : v_x1_u32r;
             v_x1_u32r = (v_x1_u32r > 419430400) ? 419430400 : v_x1_u32r;

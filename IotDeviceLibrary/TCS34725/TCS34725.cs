@@ -68,11 +68,11 @@ namespace IotDeviceLibrary.TCS34725
 
         private const string I2CControllerName = "I2C1";
         
-        private Gain _tcs34725Gain;
-        private IntegrationTime _tcs34725IntegrationTime;
+        private TCS34725_Gain _tcs34725Gain;
+        private TCS34725_IntegrationTime _tcs34725IntegrationTime;
         private I2cDevice _tcs34725;
 
-        public TCS34725(IntegrationTime time = IntegrationTime.TCS34725_INTEGRATIONTIME_2_4MS, Gain gain = Gain.TCS34725_GAIN_1X)
+        public TCS34725(TCS34725_IntegrationTime time = TCS34725_IntegrationTime.T2_4MS, TCS34725_Gain gain = TCS34725_Gain.GAIN_1X)
         {
             _tcs34725IntegrationTime = time;
             _tcs34725Gain = gain;
@@ -113,12 +113,12 @@ namespace IotDeviceLibrary.TCS34725
             doing anything else) 
         */
         /**************************************************************************/
-        public override async Task Begin()
+        public override void Begin()
         {
             Debug.WriteLine("TCS34725 BEGIN");
 
             /* Make sure we're actually connected */
-            byte x = ReadByte((byte)Registers.TCS34725_ID);
+            byte x = Read8((byte)Registers.TCS34725_ID);
             if ((x != 0x44) && (x != 0x10))
             {
                 return;
@@ -135,12 +135,12 @@ namespace IotDeviceLibrary.TCS34725
             //return true;
         }
 
-        public void SetGain(Gain gain)
+        public void SetGain(TCS34725_Gain gain)
         {
             _tcs34725Gain = gain;
         }
 
-        public void SetIntegrationTime(IntegrationTime integrationTime)
+        public void SetIntegrationTime(TCS34725_IntegrationTime integrationTime)
         {
             _tcs34725IntegrationTime = integrationTime;
         }
@@ -170,35 +170,35 @@ namespace IotDeviceLibrary.TCS34725
         {
             if (!initialised) Begin();
 
-            byte c = ReadByte((byte)Registers.TCS34725_CDATAL);
-            byte r = ReadByte((byte)Registers.TCS34725_RDATAL);
-            byte g = ReadByte((byte)Registers.TCS34725_GDATAL);
-            byte b = ReadByte((byte)Registers.TCS34725_BDATAL);
+            byte c = Read8((byte)Registers.TCS34725_CDATAL);
+            byte r = Read8((byte)Registers.TCS34725_RDATAL);
+            byte g = Read8((byte)Registers.TCS34725_GDATAL);
+            byte b = Read8((byte)Registers.TCS34725_BDATAL);
 
             /* Set a delay for the integration time */
             switch (_tcs34725IntegrationTime)
             {
-                case IntegrationTime.TCS34725_INTEGRATIONTIME_2_4MS:
+                case TCS34725_IntegrationTime.T2_4MS:
                     //delay(3);
                     await Task.Delay(3);
                     break;
-                case IntegrationTime.TCS34725_INTEGRATIONTIME_24MS:
+                case TCS34725_IntegrationTime.T24MS:
                     //delay(24);
                     await Task.Delay(24);
                     break;
-                case IntegrationTime.TCS34725_INTEGRATIONTIME_50MS:
+                case TCS34725_IntegrationTime.T50MS:
                     //delay(50);
                     await Task.Delay(50);
                     break;
-                case IntegrationTime.TCS34725_INTEGRATIONTIME_101MS:
+                case TCS34725_IntegrationTime.T101MS:
                     //delay(101);
                     await Task.Delay(101);
                     break;
-                case IntegrationTime.TCS34725_INTEGRATIONTIME_154MS:
+                case TCS34725_IntegrationTime.T154MS:
                     //delay(154);
                     await Task.Delay(154);
                     break;
-                case IntegrationTime.TCS34725_INTEGRATIONTIME_700MS:
+                case TCS34725_IntegrationTime.T700MS:
                     //delay(700);
                     await Task.Delay(700);
                     break;
@@ -227,7 +227,7 @@ namespace IotDeviceLibrary.TCS34725
         {
             /* Turn the device off to save power */
             byte reg = 0;
-            reg = ReadByte((byte)Registers.ENABLE);
+            reg = Read8((byte)Registers.ENABLE);
             int value = ~(((byte)Registers.TCS34725_ENABLE_PON | (byte)Registers.TCS34725_ENABLE_AEN));
             Write((byte)Registers.ENABLE, (byte)(reg & value));
         }
@@ -274,11 +274,11 @@ namespace IotDeviceLibrary.TCS34725
         /**************************************************************************/
         public double CalculateLux(short r, short g, short b)
         {
-            double illuminance;
+            float illuminance;
 
             /* This only uses RGB ... how can we integrate clear or calculate lux */
             /* based exclusively on clear since this might be more reliable?      */
-            illuminance = (-0.32466 * r) + (1.57837 * g) + (-0.73191 * b);
+            illuminance = (-0.32466f * r) + (1.57837f * g) + (-0.73191f * b);
 
             return illuminance;
         }

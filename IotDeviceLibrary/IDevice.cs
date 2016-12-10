@@ -5,6 +5,6 @@ namespace IotDeviceLibrary
     public interface IDevice
     {
         Task Initialize();
-        Task Begin();
+        void Begin();
     }
 }
