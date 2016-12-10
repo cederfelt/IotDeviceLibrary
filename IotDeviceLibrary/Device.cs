@@ -107,5 +107,18 @@ namespace IotDeviceLibrary
             return value;
         }
 
+
+        /* SPI
+        public byte ReadByte(byte byteToSend)
+        {
+
+            byte[] sendbuffer = new byte[] { byteToSend | 0x80 }; //set the first bit to 1
+
+            byte[] readBuffer = new byte[1];
+
+            _spi_Bme280.TransferFullDuplex(sendBuffer, readBuffer); //functionname are correct in my actual code. This is just as I remember it 
+
+            return readBuffer[0];
+        }*/
     }
 }

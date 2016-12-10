@@ -62,7 +62,7 @@ namespace IotDeviceLibrary.BME280
             RegisterHumiddata = 0xFD,
         };
 
-      
+
 
         public override async Task Initialize()
         {
@@ -89,6 +89,16 @@ namespace IotDeviceLibrary.BME280
                 Debug.WriteLine("Exception: " + e.Message + "\n" + e.StackTrace);
                 throw;
             }
+
+            /* SPI
+            var s = new SpiConnectionSettings(0)
+            {
+                Mode = SpiMode.Mode0,
+            };
+            string args = SpiDevice.GetDeviceSelector("SPI0");
+            var deviceInformation = DeviceInformation.FindAllAsync(args);*/
+
+
         }
 
         public override void Begin()

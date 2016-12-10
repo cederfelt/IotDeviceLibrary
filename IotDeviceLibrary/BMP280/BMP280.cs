@@ -188,7 +188,7 @@ namespace IotDeviceLibrary.BMP280
         }
 
         //Method to read the caliberation data from the registers
-        internal BMP280CalibrationData ReadCoefficients()
+        private BMP280CalibrationData ReadCoefficients()
         {
             // 16 bit calibration data is stored as Little Endian, the helper method will do the byte swap.
             _calibrationData = new BMP280CalibrationData();
