@@ -148,7 +148,7 @@ namespace IotDeviceLibrary.BME280
             @brief  Reads a 16 bit value over I2C 
         */
         /**************************************************************************/
-        short Read16(byte register) //TODO MIGHT BE UINT16 INSTEAD OF SHORT
+        short Read16(byte register) 
         {
             UInt16 value;
 
