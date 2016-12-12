@@ -1,5 +1,4 @@
-﻿
-namespace IotDeviceLibrary.TCS34725
+﻿namespace IotDeviceLibrary.TCS34725
 {
     public enum TCS34725_IntegrationTime : byte
     {

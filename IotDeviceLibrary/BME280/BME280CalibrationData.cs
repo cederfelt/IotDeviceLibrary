@@ -1,6 +1,6 @@
 ﻿namespace IotDeviceLibrary.BME280
 {
-    internal class Bme280CalibrationData
+    internal class BME280CalibrationData
     {
         public ushort DigT1;
         public short DigT2;
