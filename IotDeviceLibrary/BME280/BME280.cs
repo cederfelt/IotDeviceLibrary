@@ -180,7 +180,7 @@ namespace IotDeviceLibrary.BME280
 
         */
         /**************************************************************************/
-        public float readPressure()
+        public double readPressure()
         {
             ulong var1, var2, p;
 
@@ -261,7 +261,5 @@ namespace IotDeviceLibrary.BME280
             double atmospheric = readPressure() / 100.0;
             return 44330.0 * (1.0 - Math.Pow(atmospheric / seaLevel, 0.1903));
         }
-
-
     }
 }

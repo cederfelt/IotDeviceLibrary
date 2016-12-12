@@ -127,7 +127,7 @@ namespace IotDeviceLibrary.BMP280
             return;
         }
 
-        public float ReadTemperature()
+        public double ReadTemperature()
         {
             //Make sure the I2C device is initialized
             if (!initialised) Begin();
@@ -144,10 +144,10 @@ namespace IotDeviceLibrary.BMP280
             double temp = BMP280_compensate_T_double(t);
 
             //Return the temperature as a float value
-            return (float)temp;
+            return temp;
         }
 
-        public float ReadPreasure()
+        public double ReadPreasure()
         {
             //Make sure the I2C device is initialized
             if (!initialised) Begin();
@@ -170,7 +170,7 @@ namespace IotDeviceLibrary.BMP280
             long pres = BMP280_compensate_P_Int64(t);
 
             //Return the temperature as a float value
-            return ((float)pres) / 256;
+            return (pres) / 256;
         }
 
         /// <summary>
@@ -182,18 +182,18 @@ namespace IotDeviceLibrary.BMP280
         /// <returns>
         ///   Atmospheric pressure in hPa
         /// </returns>
-        public float ReadAltitude(float seaLevel)
+        public double ReadAltitude(float seaLevel)
         {
             //Make sure the I2C device is initialized
             if (!initialised) Begin();
 
             //Read the pressure first
-            float pressure = ReadPreasure();
+            double pressure = ReadPreasure();
             //Convert the pressure to Hectopascals(hPa)
             pressure /= 100;
 
             //Calculate and return the altitude using the international barometric formula
-            return 44330.0f * (1.0f - (float)Math.Pow((pressure / seaLevel), 0.1903f));
+            return 44330.0 * (1.0 - Math.Pow((pressure / seaLevel), 0.1903));
         }
 
         //Method to read the caliberation data from the registers
@@ -262,7 +262,5 @@ namespace IotDeviceLibrary.BMP280
             p = ((p + var1 + var2) >> 8) + ((long)CalibrationData.DigP7 << 4);
             return p;
         }
-
-
     }
 }

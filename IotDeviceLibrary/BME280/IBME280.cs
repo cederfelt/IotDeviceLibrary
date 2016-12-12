@@ -3,7 +3,7 @@
     public interface IBME280 : IDevice
     {
         double ReadTemperature();
-        float readPressure();
+        double readPressure();
         double ReadHumidity();
         double ReadAltitude(double seaLevel);
     }

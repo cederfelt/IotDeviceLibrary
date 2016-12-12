@@ -4,9 +4,8 @@ namespace IotDeviceLibrary.BMP280
 {
     public interface IBMP280 : IDevice
     {
-        float ReadTemperature();
-        float ReadPreasure();
-        float ReadAltitude(float seaLevel);
-        
+        double ReadTemperature();
+        double ReadPreasure();
+        double ReadAltitude(float seaLevel);
     }
 }

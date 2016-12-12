@@ -77,7 +77,6 @@ namespace IotDeviceLibrary.TCS34725
 
         public override async Task Initialize()
         {
-
             Debug.WriteLine("TCS34725 initialized");
             try
             {
@@ -124,8 +123,6 @@ namespace IotDeviceLibrary.TCS34725
 
             /* Note: by default, the device is in power down mode on bootup */
             Enable();
-
-            //return true;
         }
 
         public void SetGain(TCS34725_Gain gain)
