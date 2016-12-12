@@ -1,6 +1,4 @@
-﻿using IotDeviceLibrary.TCS34725;
-using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Windows.Devices.I2c;
 
 namespace IotDeviceLibrary
@@ -9,13 +7,24 @@ namespace IotDeviceLibrary
     {
         protected I2cDevice I2CDevice;
 
+        protected readonly byte Address = 0x29;
+
         public abstract Task Initialize();
         public abstract void Begin();
 
         protected bool initialised = false;
         public bool Initilized { get { return initialised; } }
 
-        //Method to read an 8-bit value from a register
+        protected Device(byte address)
+        {
+            Address = address;
+        }
+
+        /// <summary>
+        /// Method to read an 8-bit value from a register
+        /// </summary>
+        /// <param name="register"></param>
+        /// <returns></returns>
         protected virtual byte Read8(byte register)
         {
             byte value = 0;
@@ -29,11 +38,11 @@ namespace IotDeviceLibrary
             return value;
         }
 
-        /**************************************************************************/
-        /*! 
-            @brief  Reads a 16 bit value over I2C 
-        */
-        /**************************************************************************/
+        /// <summary>
+        /// Reads a 16 bit value over I2C 
+        /// </summary>
+        /// <param name="register"></param>
+        /// <returns></returns>
         protected ushort Read16(byte register)
         {
 
@@ -65,11 +74,11 @@ namespace IotDeviceLibrary
             return value;
         }
 
-        /**************************************************************************/
-        /*! 
-            @brief  Reads a 24 bit value over I2C 
-        */
-        /**************************************************************************/
+        /// <summary>
+        ///  @brief  Reads a 24 bit value over I2C 
+        /// </summary>
+        /// <param name="register"></param>
+        /// <returns></returns>
         protected uint Read24(byte register)
         {
             uint value;

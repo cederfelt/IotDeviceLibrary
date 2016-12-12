@@ -16,11 +16,6 @@ namespace IotDeviceLibrary.BME280
         private BME280CalibrationData _calibrationData;
         private readonly string I2CControllerName = "I2C1";
 
-
-        /*=========================================================================
-            I2C ADDRESS/BITS
-            -----------------------------------------------------------------------*/
-        private readonly byte _bme280Address = (0x77);
         /*=========================================================================*/
 
         /*=========================================================================
@@ -63,9 +58,8 @@ namespace IotDeviceLibrary.BME280
             RegisterHumiddata = 0xFD,
         };
 
-        public BME280(byte address = 0x77)
+        public BME280(byte address = 0x77) : base(address)
         {
-            _bme280Address = address;
             _calibrationData = new BME280CalibrationData();
         }
 
@@ -75,7 +69,7 @@ namespace IotDeviceLibrary.BME280
             Debug.WriteLine("BME280 initialized");
             try
             {
-                I2cConnectionSettings settings = new I2cConnectionSettings(_bme280Address);
+                I2cConnectionSettings settings = new I2cConnectionSettings(Address);
 
                 settings.BusSpeed = I2cBusSpeed.FastMode;
 

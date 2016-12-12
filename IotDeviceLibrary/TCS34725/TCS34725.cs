@@ -63,7 +63,6 @@ namespace IotDeviceLibrary.TCS34725
             TCS34725_BDATAH = (0x1B),
         }
 
-        private readonly byte Address = 0x29;
         private readonly byte CommandBit = 0x80;
 
         private const string I2CControllerName = "I2C1";
@@ -72,11 +71,10 @@ namespace IotDeviceLibrary.TCS34725
         private TCS34725_IntegrationTime _tcs34725IntegrationTime;
         private I2cDevice _tcs34725;
 
-        public TCS34725(TCS34725_IntegrationTime time = TCS34725_IntegrationTime.T2_4MS, TCS34725_Gain gain = TCS34725_Gain.GAIN_1X, byte address = 0x29, byte commandbit = 0x80)
+        public TCS34725(TCS34725_IntegrationTime time = TCS34725_IntegrationTime.T2_4MS, TCS34725_Gain gain = TCS34725_Gain.GAIN_1X, byte address = 0x29, byte commandbit = 0x80) : base(address)
         {
             _tcs34725IntegrationTime = time;
-            _tcs34725Gain = gain;
-            Address = address;
+            _tcs34725Gain = gain; 
             CommandBit = commandbit;
         }
 

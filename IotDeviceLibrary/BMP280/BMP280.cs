@@ -9,7 +9,6 @@ namespace IotDeviceLibrary.BMP280
     public class BMP280 : Device, IBMP280
     {
         //The BMP280 register addresses according the the datasheet: http://www.adafruit.com/datasheets/BST-BMP280-DS001-11.pdf
-        private readonly byte Address = 0x77;
         private readonly byte Signature = 0x58;
         //t_fine carries fine temperature as global value
         private int t_fine = int.MinValue;
@@ -55,9 +54,8 @@ namespace IotDeviceLibrary.BMP280
 
         private BMP280CalibrationData _calibrationData;
 
-        public BMP280(byte address = 0x77, byte signature = 0x58)
+        public BMP280(byte address = 0x77, byte signature = 0x58) : base (address)
         {
-            Address = address;
             Signature = signature;
         }
 
