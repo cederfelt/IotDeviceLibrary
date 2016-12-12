@@ -125,9 +125,6 @@ namespace IotDeviceLibrary.TCS34725
             }
             initialised = true;
 
-            /* Set default integration time and gain */
-            SetIntegrationTime(_tcs34725IntegrationTime);
-            SetGain(_tcs34725Gain);
 
             /* Note: by default, the device is in power down mode on bootup */
             Enable();
