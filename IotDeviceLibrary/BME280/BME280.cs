@@ -7,14 +7,15 @@ using Windows.Devices.I2c;
 namespace IotDeviceLibrary.BME280
 {
     //https://github.com/adafruit/Adafruit_BME280_Library
-    public class Bme280 : Device, IBME280
+    public class BME280 : Device, IBME280
     {
 
-        private byte _i2Caddr;
-        private int _sensorId;
+        // private byte _i2Caddr;
+        //private int _sensorId;
         private uint _tFine;
         private Bme280CalibrationData _bme280Calib;
-        private const string I2CControllerName = "I2C1";
+        private readonly string I2CControllerName = "I2C1";
+
 
         /*=========================================================================
             I2C ADDRESS/BITS
@@ -25,7 +26,7 @@ namespace IotDeviceLibrary.BME280
         /*=========================================================================
             REGISTERS
             -----------------------------------------------------------------------*/
-        enum Registers : byte
+        private enum Registers : byte
         {
             RegisterDigT1 = 0x88,
             RegisterDigT2 = 0x8A,
@@ -62,6 +63,11 @@ namespace IotDeviceLibrary.BME280
             RegisterHumiddata = 0xFD,
         };
 
+        public BME280(byte address = 0x77)
+        {
+            _bme280Address = address;
+            _bme280Calib = new Bme280CalibrationData();
+        }
 
 
         public override async Task Initialize()
@@ -163,7 +169,7 @@ namespace IotDeviceLibrary.BME280
 
         */
         /**************************************************************************/
-        double ReadTemperature()
+        public double ReadTemperature()
         {
             uint var1, var2;
 
@@ -187,7 +193,7 @@ namespace IotDeviceLibrary.BME280
 
         */
         /**************************************************************************/
-        float readPressure()
+        public float readPressure()
         {
             ulong var1, var2, p;
 
@@ -222,7 +228,7 @@ namespace IotDeviceLibrary.BME280
 
         */
         /**************************************************************************/
-        double ReadHumidity()
+        public double ReadHumidity()
         {
             ReadTemperature(); // must be done first to get t_fine
 
@@ -247,16 +253,16 @@ namespace IotDeviceLibrary.BME280
             return h / 1024.0;
         }
 
-        /**************************************************************************/
-        /*!
-            Calculates the altitude (in meters) from the specified atmospheric
-            pressure (in hPa), and sea-level pressure (in hPa).
-
-            @param  seaLevel      Sea-level pressure in hPa
-            @param  atmospheric   Atmospheric pressure in hPa
-        */
-        /**************************************************************************/
-        double ReadAltitude(double seaLevel)
+        /// <summary>
+        ///  Calculates the altitude (in meters) from the specified atmospheric pressure(in hPa), and sea-level pressure(in hPa).
+        /// </summary>
+        /// <param name="seaLevel" > 
+        ///   Sea-level pressure in hPa
+        /// </param>
+        /// <returns>
+        ///   Atmospheric pressure in hPa
+        /// </returns>
+        public double ReadAltitude(double seaLevel)
         {
             // Equation taken from BMP180 datasheet (page 16):
             //  http://www.adafruit.com/datasheets/BST-BMP180-DS000-09.pdf

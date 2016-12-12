@@ -9,7 +9,7 @@ namespace IotDeviceLibrary.TCS34725
     //https://github.com/adafruit/Adafruit_TCS34725
     public class TCS34725 : Device, ITCS34725
     {
-        public enum Cycle : byte
+        private enum Cycle : byte
         {
             TCS34725_PERS_NONE = 0,         //(0b0000),  /* Every RGBC cycle generates an interrupt                                */
             TCS34725_PERS_1_CYCLE = 1,      //(0b0001),  /* 1 clean channel value outside threshold range generates an interrupt   */
@@ -29,7 +29,7 @@ namespace IotDeviceLibrary.TCS34725
             TCS34725_PERS_60_CYCLE = 15     //(0b1111),  /* 60 clean channel values outside threshold range generates an interrupt */
         }
 
-        public enum Registers : byte
+        private enum Registers : byte
         {
             ENABLE = 0x00,
             ENABLE_AIEN = 0x10,             // RGBC Interrupt Enable
@@ -63,19 +63,21 @@ namespace IotDeviceLibrary.TCS34725
             TCS34725_BDATAH = (0x1B),
         }
 
-        private const byte Address = 0x29;
-        private const byte CommandBit = 0x80;
+        private readonly byte Address = 0x29;
+        private readonly byte CommandBit = 0x80;
 
         private const string I2CControllerName = "I2C1";
-        
+
         private TCS34725_Gain _tcs34725Gain;
         private TCS34725_IntegrationTime _tcs34725IntegrationTime;
         private I2cDevice _tcs34725;
 
-        public TCS34725(TCS34725_IntegrationTime time = TCS34725_IntegrationTime.T2_4MS, TCS34725_Gain gain = TCS34725_Gain.GAIN_1X)
+        public TCS34725(TCS34725_IntegrationTime time = TCS34725_IntegrationTime.T2_4MS, TCS34725_Gain gain = TCS34725_Gain.GAIN_1X, byte address = 0x29, byte commandbit = 0x80)
         {
             _tcs34725IntegrationTime = time;
             _tcs34725Gain = gain;
+            Address = address;
+            CommandBit = commandbit;
         }
 
         public override async Task Initialize()
@@ -106,7 +108,7 @@ namespace IotDeviceLibrary.TCS34725
                 throw;
             }
         }
-        
+
         /**************************************************************************/
         /*! 
             Initializes I2C and configures the sensor (call this function before 

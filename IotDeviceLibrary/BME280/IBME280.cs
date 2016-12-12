@@ -1,6 +1,10 @@
 ﻿namespace IotDeviceLibrary.BME280
 {
-    interface IBME280 : IDevice
+    public interface IBME280 : IDevice
     {
+        double ReadTemperature();
+        float readPressure();
+        double ReadHumidity();
+        double ReadAltitude(double seaLevel);
     }
 }

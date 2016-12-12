@@ -6,14 +6,14 @@ using Windows.Devices.I2c;
 
 namespace IotDeviceLibrary.BMP280
 {
-        public class BMP280 : Device, IBMP280
+    public class BMP280 : Device, IBMP280
     {
         //The BMP280 register addresses according the the datasheet: http://www.adafruit.com/datasheets/BST-BMP280-DS001-11.pdf
-        private const byte BMP280_Address = 0x77;
-        private const byte BMP280_Signature = 0x58;
+        private readonly byte Address = 0x77;
+        private readonly byte Signature = 0x58;
         //t_fine carries fine temperature as global value
         private int t_fine = int.MinValue;
-        private enum eRegisters : byte
+        private enum Registers : byte
         {
             BMP280_REGISTER_DIG_T1 = 0x88,
             BMP280_REGISTER_DIG_T2 = 0x8A,
@@ -50,17 +50,23 @@ namespace IotDeviceLibrary.BMP280
             BMP280_REGISTER_HUMIDDATA_MSB = 0xFD,
             BMP280_REGISTER_HUMIDDATA_LSB = 0xFE,
         };
-        
+
         private const string I2CControllerName = "I2C1";
-        
+
         private BMP280CalibrationData _calibrationData;
+
+        public BMP280(byte address = 0x77, byte signature = 0x58)
+        {
+            Address = address;
+            Signature = signature;
+        }
 
         public override async Task Initialize()
         {
             Debug.WriteLine("BMP280 initialized");
             try
             {
-                I2cConnectionSettings settings = new I2cConnectionSettings(BMP280_Address);
+                I2cConnectionSettings settings = new I2cConnectionSettings(Address);
 
                 settings.BusSpeed = I2cBusSpeed.FastMode;
 
@@ -85,13 +91,13 @@ namespace IotDeviceLibrary.BMP280
         public override void Begin()
         {
             Debug.WriteLine("BMP280::BEGIN");
-            byte[] writeBuffer = new byte[] { (byte)eRegisters.BMP280_REGISTER_CHIPID };
+            byte[] writeBuffer = new byte[] { (byte)Registers.BMP280_REGISTER_CHIPID };
             byte[] readBuffer = new byte[] { 0xFF };
 
             I2CDevice.WriteRead(writeBuffer, readBuffer);
             Debug.WriteLine("BMP280 Signature: " + readBuffer[0].ToString());
 
-            if (readBuffer[0] != BMP280_Signature)
+            if (readBuffer[0] != Signature)
             {
                 {
                     Debug.WriteLine("BMP280::Begin Signature Mismatch.");
@@ -113,7 +119,7 @@ namespace IotDeviceLibrary.BMP280
         //Method to write 0x03 to the humidity control register
         private void WriteControlRegisterHumidity()
         {
-            byte[] writeBuffer = new byte[] { (byte)eRegisters.BMP280_REGISTER_CONTROLHUMID, 0x03 };
+            byte[] writeBuffer = new byte[] { (byte)Registers.BMP280_REGISTER_CONTROLHUMID, 0x03 };
             I2CDevice.Write(writeBuffer);
             return;
         }
@@ -121,20 +127,20 @@ namespace IotDeviceLibrary.BMP280
         //Method to write 0x3F to the control register
         private void WriteControlRegister()
         {
-            byte[] writeBuffer = new byte[] { (byte)eRegisters.BMP280_REGISTER_CONTROL, 0x3F };
+            byte[] writeBuffer = new byte[] { (byte)Registers.BMP280_REGISTER_CONTROL, 0x3F };
             I2CDevice.Write(writeBuffer);
             return;
         }
-               
+
         public float ReadTemperature()
         {
             //Make sure the I2C device is initialized
             if (!initialised) Begin();
 
             //Read the MSB, LSB and bits 7:4 (XLSB) of the temperature from the BMP280 registers
-            byte tmsb = Read8((byte)eRegisters.BMP280_REGISTER_TEMPDATA_MSB);
-            byte tlsb = Read8((byte)eRegisters.BMP280_REGISTER_TEMPDATA_LSB);
-            byte txlsb = Read8((byte)eRegisters.BMP280_REGISTER_TEMPDATA_XLSB); // bits 7:4
+            byte tmsb = Read8((byte)Registers.BMP280_REGISTER_TEMPDATA_MSB);
+            byte tlsb = Read8((byte)Registers.BMP280_REGISTER_TEMPDATA_LSB);
+            byte txlsb = Read8((byte)Registers.BMP280_REGISTER_TEMPDATA_XLSB); // bits 7:4
 
             //Combine the values into a 32-bit integer
             int t = (tmsb << 12) + (tlsb << 4) + (txlsb >> 4);
@@ -158,9 +164,9 @@ namespace IotDeviceLibrary.BMP280
             }
 
             //Read the MSB, LSB and bits 7:4 (XLSB) of the pressure from the BMP280 registers
-            byte tmsb = Read8((byte)eRegisters.BMP280_REGISTER_PRESSUREDATA_MSB);
-            byte tlsb = Read8((byte)eRegisters.BMP280_REGISTER_PRESSUREDATA_LSB);
-            byte txlsb = Read8((byte)eRegisters.BMP280_REGISTER_PRESSUREDATA_XLSB); // bits 7:4
+            byte tmsb = Read8((byte)Registers.BMP280_REGISTER_PRESSUREDATA_MSB);
+            byte tlsb = Read8((byte)Registers.BMP280_REGISTER_PRESSUREDATA_LSB);
+            byte txlsb = Read8((byte)Registers.BMP280_REGISTER_PRESSUREDATA_XLSB); // bits 7:4
 
             //Combine the values into a 32-bit integer
             int t = (tmsb << 12) + (tlsb << 4) + (txlsb >> 4);
@@ -171,8 +177,16 @@ namespace IotDeviceLibrary.BMP280
             //Return the temperature as a float value
             return ((float)pres) / 256;
         }
-        
-        //Method to take the sea level pressure in Hectopascals(hPa) as a parameter and calculate the altitude using current pressure.
+
+        /// <summary>
+        ///  Calculates the altitude (in meters) from the specified atmospheric pressure(in hPa), and sea-level pressure(in hPa).
+        /// </summary>
+        /// <param name="seaLevel" > 
+        ///   Sea-level pressure in hPa
+        /// </param>
+        /// <returns>
+        ///   Atmospheric pressure in hPa
+        /// </returns>
         public float ReadAltitude(float seaLevel)
         {
             //Make sure the I2C device is initialized
@@ -194,25 +208,25 @@ namespace IotDeviceLibrary.BMP280
             _calibrationData = new BMP280CalibrationData();
 
             // Read temperature calibration data
-            _calibrationData.DigT1 = Read16((byte)eRegisters.BMP280_REGISTER_DIG_T1);
-            _calibrationData.DigT2 = (short)Read16((byte)eRegisters.BMP280_REGISTER_DIG_T2);
-            _calibrationData.DigT3 = (short)Read16((byte)eRegisters.BMP280_REGISTER_DIG_T3);
+            _calibrationData.DigT1 = Read16((byte)Registers.BMP280_REGISTER_DIG_T1);
+            _calibrationData.DigT2 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_T2);
+            _calibrationData.DigT3 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_T3);
 
             // Read presure calibration data
-            _calibrationData.DigP1 = Read16((byte)eRegisters.BMP280_REGISTER_DIG_P1);
-            _calibrationData.DigP2 = (short)Read16((byte)eRegisters.BMP280_REGISTER_DIG_P2);
-            _calibrationData.DigP3 = (short)Read16((byte)eRegisters.BMP280_REGISTER_DIG_P3);
-            _calibrationData.DigP4 = (short)Read16((byte)eRegisters.BMP280_REGISTER_DIG_P4);
-            _calibrationData.DigP5 = (short)Read16((byte)eRegisters.BMP280_REGISTER_DIG_P5);
-            _calibrationData.DigP6 = (short)Read16((byte)eRegisters.BMP280_REGISTER_DIG_P6);
-            _calibrationData.DigP7 = (short)Read16((byte)eRegisters.BMP280_REGISTER_DIG_P7);
-            _calibrationData.DigP8 = (short)Read16((byte)eRegisters.BMP280_REGISTER_DIG_P8);
-            _calibrationData.DigP9 = (short)Read16((byte)eRegisters.BMP280_REGISTER_DIG_P9);
-            
+            _calibrationData.DigP1 = Read16((byte)Registers.BMP280_REGISTER_DIG_P1);
+            _calibrationData.DigP2 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P2);
+            _calibrationData.DigP3 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P3);
+            _calibrationData.DigP4 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P4);
+            _calibrationData.DigP5 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P5);
+            _calibrationData.DigP6 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P6);
+            _calibrationData.DigP7 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P7);
+            _calibrationData.DigP8 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P8);
+            _calibrationData.DigP9 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P9);
+
             return _calibrationData;
         }
 
-         //Method to return the temperature in DegC. Resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
+        //Method to return the temperature in DegC. Resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
         private double BMP280_compensate_T_double(int adc_T)
         {
             double var1, var2, T;

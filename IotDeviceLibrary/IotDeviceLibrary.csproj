@@ -119,6 +119,8 @@
     <Compile Include="TCS34725\ITCS34725.cs" />
     <Compile Include="TCS34725\TCS34725.cs" />
     <Compile Include="TCS34725\TCS34725Color.cs" />
+    <Compile Include="TCS34725\TCS34725_Gain.cs" />
+    <Compile Include="TCS34725\TCS34725_IntegrationTime.cs" />
     <EmbeddedResource Include="Properties\IotDeviceLibrary.rd.xml" />
   </ItemGroup>
   <ItemGroup>

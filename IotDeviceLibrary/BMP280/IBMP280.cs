@@ -7,5 +7,6 @@ namespace IotDeviceLibrary.BMP280
         float ReadTemperature();
         float ReadPreasure();
         float ReadAltitude(float seaLevel);
+        
     }
 }
