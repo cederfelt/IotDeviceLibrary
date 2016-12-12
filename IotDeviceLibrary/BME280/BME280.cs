@@ -15,7 +15,6 @@ namespace IotDeviceLibrary.BME280
         private uint _tFine;
         private BME280CalibrationData _calibrationData;
         private readonly string I2CControllerName = "I2C1";
-        private readonly byte Signature = 0x60;
 
         /*=========================================================================*/
 
@@ -59,12 +58,11 @@ namespace IotDeviceLibrary.BME280
             RegisterHumiddata = 0xFD,
         };
 
-        public BME280(byte address = 0x77) : base(address)
+        public BME280(byte address = 0x77, byte signature = 0x60) : base(address, signature)
         {
             _calibrationData = new BME280CalibrationData();
         }
-
-
+        
         public override async Task Initialize()
         {
             Debug.WriteLine("BME280 initialized");

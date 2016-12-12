@@ -7,7 +7,8 @@ namespace IotDeviceLibrary
     {
         protected I2cDevice I2CDevice;
 
-        protected readonly byte Address = 0x29;
+        protected readonly byte Address;
+        protected readonly byte Signature;
 
         public abstract Task Initialize();
         public abstract void Begin();
@@ -15,9 +16,10 @@ namespace IotDeviceLibrary
         protected bool initialised = false;
         public bool Initilized { get { return initialised; } }
 
-        protected Device(byte address)
+        protected Device(byte address, byte signature)
         {
             Address = address;
+            Signature = signature;
         }
 
         /// <summary>
@@ -45,7 +47,6 @@ namespace IotDeviceLibrary
         /// <returns></returns>
         protected ushort Read16(byte register)
         {
-
             ushort value;
 
             byte[] writeBuffer = new byte[] { 0x00 };

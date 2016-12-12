@@ -70,10 +70,10 @@ namespace IotDeviceLibrary.TCS34725
         private TCS34725_Gain _tcs34725Gain;
         private TCS34725_IntegrationTime _tcs34725IntegrationTime;
 
-        public TCS34725(TCS34725_IntegrationTime time = TCS34725_IntegrationTime.T2_4MS, TCS34725_Gain gain = TCS34725_Gain.GAIN_1X, byte address = 0x29, byte commandbit = 0x80) : base(address)
+        public TCS34725(TCS34725_IntegrationTime time = TCS34725_IntegrationTime.T2_4MS, TCS34725_Gain gain = TCS34725_Gain.GAIN_1X, byte address = 0x29, byte commandbit = 0x80) : base(address, 0)
         {
             _tcs34725IntegrationTime = time;
-            _tcs34725Gain = gain; 
+            _tcs34725Gain = gain;
             CommandBit = commandbit;
         }
 
@@ -123,7 +123,7 @@ namespace IotDeviceLibrary.TCS34725
                 return;
             }
             initialised = true;
-            
+
             /* Note: by default, the device is in power down mode on bootup */
             Enable();
 
