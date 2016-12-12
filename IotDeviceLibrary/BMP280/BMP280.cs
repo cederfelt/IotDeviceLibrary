@@ -70,9 +70,9 @@ namespace IotDeviceLibrary.BMP280
 
                 string aqs = I2cDevice.GetDeviceSelector(I2CControllerName);
 
-                DeviceInformationCollection dis = await DeviceInformation.FindAllAsync(aqs);
+                DeviceInformationCollection dic = await DeviceInformation.FindAllAsync(aqs);
 
-                I2CDevice = await I2cDevice.FromIdAsync(dis[0].Id, settings);
+                I2CDevice = await I2cDevice.FromIdAsync(dic[0].Id, settings);
 
                 if (I2CDevice == null)
                 {

@@ -90,9 +90,9 @@ namespace IotDeviceLibrary.TCS34725
 
                 String aqs = I2cDevice.GetDeviceSelector(I2CControllerName);
 
-                DeviceInformationCollection dis = await DeviceInformation.FindAllAsync(aqs);
+                DeviceInformationCollection dic = await DeviceInformation.FindAllAsync(aqs);
 
-                _tcs34725 = await I2cDevice.FromIdAsync(dis[0].Id, settings);
+                _tcs34725 = await I2cDevice.FromIdAsync(dic[0].Id, settings);
 
                 if (_tcs34725 == null)
                 {

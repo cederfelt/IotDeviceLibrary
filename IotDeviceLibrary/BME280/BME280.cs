@@ -15,6 +15,7 @@ namespace IotDeviceLibrary.BME280
         private uint _tFine;
         private BME280CalibrationData _calibrationData;
         private readonly string I2CControllerName = "I2C1";
+        private readonly byte Signature = 0x60;
 
         /*=========================================================================*/
 
@@ -75,9 +76,9 @@ namespace IotDeviceLibrary.BME280
 
                 string aqs = I2cDevice.GetDeviceSelector(I2CControllerName);
 
-                DeviceInformationCollection dis = await DeviceInformation.FindAllAsync(aqs);
+                DeviceInformationCollection dic = await DeviceInformation.FindAllAsync(aqs);
 
-                I2CDevice = await I2cDevice.FromIdAsync(dis[0].Id, settings);
+                I2CDevice = await I2cDevice.FromIdAsync(dic[0].Id, settings);
 
                 if (I2CDevice == null)
                 {
@@ -110,14 +111,14 @@ namespace IotDeviceLibrary.BME280
             I2CDevice.WriteRead(writeBuffer, readBuffer);
             Debug.WriteLine("BME280 Signature: " + readBuffer[0].ToString());
 
-            /*
-            if (readBuffer[0] != BME280_Signature)
+            
+            if (readBuffer[0] != Signature)
             {
                 {
                     Debug.WriteLine("BME280::Begin Signature Mismatch.");
                     return;
                 }
-            }*/
+            }
             initialised = true;
 
             //Read the coefficients table
