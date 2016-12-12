@@ -14,40 +14,40 @@ namespace IotDeviceLibrary.BMP280
         private int t_fine = int.MinValue;
         private enum Registers : byte
         {
-            BMP280_REGISTER_DIG_T1 = 0x88,
-            BMP280_REGISTER_DIG_T2 = 0x8A,
-            BMP280_REGISTER_DIG_T3 = 0x8C,
+            REGISTER_DIG_T1 = 0x88,
+            REGISTER_DIG_T2 = 0x8A,
+            REGISTER_DIG_T3 = 0x8C,
 
-            BMP280_REGISTER_DIG_P1 = 0x8E,
-            BMP280_REGISTER_DIG_P2 = 0x90,
-            BMP280_REGISTER_DIG_P3 = 0x92,
-            BMP280_REGISTER_DIG_P4 = 0x94,
-            BMP280_REGISTER_DIG_P5 = 0x96,
-            BMP280_REGISTER_DIG_P6 = 0x98,
-            BMP280_REGISTER_DIG_P7 = 0x9A,
-            BMP280_REGISTER_DIG_P8 = 0x9C,
-            BMP280_REGISTER_DIG_P9 = 0x9E,
+            REGISTER_DIG_P1 = 0x8E,
+            REGISTER_DIG_P2 = 0x90,
+            REGISTER_DIG_P3 = 0x92,
+            REGISTER_DIG_P4 = 0x94,
+            REGISTER_DIG_P5 = 0x96,
+            REGISTER_DIG_P6 = 0x98,
+            REGISTER_DIG_P7 = 0x9A,
+            REGISTER_DIG_P8 = 0x9C,
+            REGISTER_DIG_P9 = 0x9E,
 
-            BMP280_REGISTER_CHIPID = 0xD0,
-            BMP280_REGISTER_VERSION = 0xD1,
-            BMP280_REGISTER_SOFTRESET = 0xE0,
+            REGISTER_CHIPID = 0xD0,
+            REGISTER_VERSION = 0xD1,
+            REGISTER_SOFTRESET = 0xE0,
 
-            BMP280_REGISTER_CAL26 = 0xE1,  // R calibration stored in 0xE1-0xF0
+            REGISTER_CAL26 = 0xE1,  // R calibration stored in 0xE1-0xF0
 
-            BMP280_REGISTER_CONTROLHUMID = 0xF2,
-            BMP280_REGISTER_CONTROL = 0xF4,
-            BMP280_REGISTER_CONFIG = 0xF5,
+            REGISTER_CONTROLHUMID = 0xF2,
+            REGISTER_CONTROL = 0xF4,
+            REGISTER_CONFIG = 0xF5,
 
-            BMP280_REGISTER_PRESSUREDATA_MSB = 0xF7,
-            BMP280_REGISTER_PRESSUREDATA_LSB = 0xF8,
-            BMP280_REGISTER_PRESSUREDATA_XLSB = 0xF9, // bits <7:4>
+            REGISTER_PRESSUREDATA_MSB = 0xF7,
+            REGISTER_PRESSUREDATA_LSB = 0xF8,
+            REGISTER_PRESSUREDATA_XLSB = 0xF9, // bits <7:4>
 
-            BMP280_REGISTER_TEMPDATA_MSB = 0xFA,
-            BMP280_REGISTER_TEMPDATA_LSB = 0xFB,
-            BMP280_REGISTER_TEMPDATA_XLSB = 0xFC, // bits <7:4>
+            REGISTER_TEMPDATA_MSB = 0xFA,
+            REGISTER_TEMPDATA_LSB = 0xFB,
+            REGISTER_TEMPDATA_XLSB = 0xFC, // bits <7:4>
 
-            BMP280_REGISTER_HUMIDDATA_MSB = 0xFD,
-            BMP280_REGISTER_HUMIDDATA_LSB = 0xFE,
+            REGISTER_HUMIDDATA_MSB = 0xFD,
+            REGISTER_HUMIDDATA_LSB = 0xFE,
         };
 
         private const string I2CControllerName = "I2C1";
@@ -89,7 +89,7 @@ namespace IotDeviceLibrary.BMP280
         public override void Begin()
         {
             Debug.WriteLine("BMP280::BEGIN");
-            byte[] writeBuffer = new byte[] { (byte)Registers.BMP280_REGISTER_CHIPID };
+            byte[] writeBuffer = new byte[] { (byte)Registers.REGISTER_CHIPID };
             byte[] readBuffer = new byte[] { 0xFF };
 
             I2CDevice.WriteRead(writeBuffer, readBuffer);
@@ -117,7 +117,7 @@ namespace IotDeviceLibrary.BMP280
         //Method to write 0x03 to the humidity control register
         private void WriteControlRegisterHumidity()
         {
-            byte[] writeBuffer = new byte[] { (byte)Registers.BMP280_REGISTER_CONTROLHUMID, 0x03 };
+            byte[] writeBuffer = new byte[] { (byte)Registers.REGISTER_CONTROLHUMID, 0x03 };
             I2CDevice.Write(writeBuffer);
             return;
         }
@@ -125,7 +125,7 @@ namespace IotDeviceLibrary.BMP280
         //Method to write 0x3F to the control register
         private void WriteControlRegister()
         {
-            byte[] writeBuffer = new byte[] { (byte)Registers.BMP280_REGISTER_CONTROL, 0x3F };
+            byte[] writeBuffer = new byte[] { (byte)Registers.REGISTER_CONTROL, 0x3F };
             I2CDevice.Write(writeBuffer);
             return;
         }
@@ -136,9 +136,9 @@ namespace IotDeviceLibrary.BMP280
             if (!initialised) Begin();
 
             //Read the MSB, LSB and bits 7:4 (XLSB) of the temperature from the BMP280 registers
-            byte tmsb = Read8((byte)Registers.BMP280_REGISTER_TEMPDATA_MSB);
-            byte tlsb = Read8((byte)Registers.BMP280_REGISTER_TEMPDATA_LSB);
-            byte txlsb = Read8((byte)Registers.BMP280_REGISTER_TEMPDATA_XLSB); // bits 7:4
+            byte tmsb = Read8((byte)Registers.REGISTER_TEMPDATA_MSB);
+            byte tlsb = Read8((byte)Registers.REGISTER_TEMPDATA_LSB);
+            byte txlsb = Read8((byte)Registers.REGISTER_TEMPDATA_XLSB); // bits 7:4
 
             //Combine the values into a 32-bit integer
             int t = (tmsb << 12) + (tlsb << 4) + (txlsb >> 4);
@@ -162,9 +162,9 @@ namespace IotDeviceLibrary.BMP280
             }
 
             //Read the MSB, LSB and bits 7:4 (XLSB) of the pressure from the BMP280 registers
-            byte tmsb = Read8((byte)Registers.BMP280_REGISTER_PRESSUREDATA_MSB);
-            byte tlsb = Read8((byte)Registers.BMP280_REGISTER_PRESSUREDATA_LSB);
-            byte txlsb = Read8((byte)Registers.BMP280_REGISTER_PRESSUREDATA_XLSB); // bits 7:4
+            byte tmsb = Read8((byte)Registers.REGISTER_PRESSUREDATA_MSB);
+            byte tlsb = Read8((byte)Registers.REGISTER_PRESSUREDATA_LSB);
+            byte txlsb = Read8((byte)Registers.REGISTER_PRESSUREDATA_XLSB); // bits 7:4
 
             //Combine the values into a 32-bit integer
             int t = (tmsb << 12) + (tlsb << 4) + (txlsb >> 4);
@@ -206,20 +206,20 @@ namespace IotDeviceLibrary.BMP280
             _calibrationData = new BMP280CalibrationData();
 
             // Read temperature calibration data
-            _calibrationData.DigT1 = Read16((byte)Registers.BMP280_REGISTER_DIG_T1);
-            _calibrationData.DigT2 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_T2);
-            _calibrationData.DigT3 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_T3);
+            _calibrationData.DigT1 = Read16((byte)Registers.REGISTER_DIG_T1);
+            _calibrationData.DigT2 = (short)Read16((byte)Registers.REGISTER_DIG_T2);
+            _calibrationData.DigT3 = (short)Read16((byte)Registers.REGISTER_DIG_T3);
 
             // Read presure calibration data
-            _calibrationData.DigP1 = Read16((byte)Registers.BMP280_REGISTER_DIG_P1);
-            _calibrationData.DigP2 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P2);
-            _calibrationData.DigP3 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P3);
-            _calibrationData.DigP4 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P4);
-            _calibrationData.DigP5 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P5);
-            _calibrationData.DigP6 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P6);
-            _calibrationData.DigP7 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P7);
-            _calibrationData.DigP8 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P8);
-            _calibrationData.DigP9 = (short)Read16((byte)Registers.BMP280_REGISTER_DIG_P9);
+            _calibrationData.DigP1 = Read16((byte)Registers.REGISTER_DIG_P1);
+            _calibrationData.DigP2 = (short)Read16((byte)Registers.REGISTER_DIG_P2);
+            _calibrationData.DigP3 = (short)Read16((byte)Registers.REGISTER_DIG_P3);
+            _calibrationData.DigP4 = (short)Read16((byte)Registers.REGISTER_DIG_P4);
+            _calibrationData.DigP5 = (short)Read16((byte)Registers.REGISTER_DIG_P5);
+            _calibrationData.DigP6 = (short)Read16((byte)Registers.REGISTER_DIG_P6);
+            _calibrationData.DigP7 = (short)Read16((byte)Registers.REGISTER_DIG_P7);
+            _calibrationData.DigP8 = (short)Read16((byte)Registers.REGISTER_DIG_P8);
+            _calibrationData.DigP9 = (short)Read16((byte)Registers.REGISTER_DIG_P9);
 
             return _calibrationData;
         }

@@ -69,7 +69,6 @@ namespace IotDeviceLibrary.TCS34725
 
         private TCS34725_Gain _tcs34725Gain;
         private TCS34725_IntegrationTime _tcs34725IntegrationTime;
-        private I2cDevice _tcs34725;
 
         public TCS34725(TCS34725_IntegrationTime time = TCS34725_IntegrationTime.T2_4MS, TCS34725_Gain gain = TCS34725_Gain.GAIN_1X, byte address = 0x29, byte commandbit = 0x80) : base(address)
         {
@@ -92,9 +91,9 @@ namespace IotDeviceLibrary.TCS34725
 
                 DeviceInformationCollection dic = await DeviceInformation.FindAllAsync(aqs);
 
-                _tcs34725 = await I2cDevice.FromIdAsync(dic[0].Id, settings);
+                I2CDevice = await I2cDevice.FromIdAsync(dic[0].Id, settings);
 
-                if (_tcs34725 == null)
+                if (I2CDevice == null)
                 {
                     Debug.WriteLine("Device not found");
                 }
@@ -124,8 +123,7 @@ namespace IotDeviceLibrary.TCS34725
                 return;
             }
             initialised = true;
-
-
+            
             /* Note: by default, the device is in power down mode on bootup */
             Enable();
 
@@ -147,7 +145,7 @@ namespace IotDeviceLibrary.TCS34725
             byte[] writeBuffer = new byte[] { 0x00 };
             byte[] readBuffer = new byte[] { 0x00 };
             writeBuffer[0] = reg;
-            _tcs34725.WriteRead(writeBuffer, readBuffer);
+            I2CDevice.WriteRead(writeBuffer, readBuffer);
             var value = readBuffer[0];
             return value;
         }
@@ -155,7 +153,7 @@ namespace IotDeviceLibrary.TCS34725
         public void Write(byte register, byte data)
         {
             byte[] writeBuffer = new byte[] { register, data };
-            _tcs34725.Write(writeBuffer);
+            I2CDevice.Write(writeBuffer);
         }
 
         /**************************************************************************/

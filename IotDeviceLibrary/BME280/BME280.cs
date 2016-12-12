@@ -98,8 +98,6 @@ namespace IotDeviceLibrary.BME280
             };
             string args = SpiDevice.GetDeviceSelector("SPI0");
             var deviceInformation = DeviceInformation.FindAllAsync(args);*/
-
-
         }
 
         public override void Begin()
@@ -111,7 +109,6 @@ namespace IotDeviceLibrary.BME280
             I2CDevice.WriteRead(writeBuffer, readBuffer);
             Debug.WriteLine("BME280 Signature: " + readBuffer[0].ToString());
 
-            
             if (readBuffer[0] != Signature)
             {
                 {
@@ -127,8 +124,6 @@ namespace IotDeviceLibrary.BME280
             //Write control register
             // await WriteControlRegister();
         }
-
-
 
         /**************************************************************************/
         /*! 
@@ -166,6 +161,8 @@ namespace IotDeviceLibrary.BME280
         /**************************************************************************/
         public double ReadTemperature()
         {
+            if (!initialised) { Begin(); }
+
             uint var1, var2;
 
             uint adc_T = Read24((byte)Registers.RegisterTempdata);
