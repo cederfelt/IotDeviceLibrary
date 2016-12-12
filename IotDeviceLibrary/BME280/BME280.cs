@@ -9,11 +9,8 @@ namespace IotDeviceLibrary.BME280
     //https://github.com/adafruit/Adafruit_BME280_Library
     public class BME280 : Device, IBME280
     {
-
-        // private byte _i2Caddr;
-        //private int _sensorId;
-        private uint _tFine;
-        private BME280CalibrationData _calibrationData;
+        private uint TFine;
+        private BME280CalibrationData CalibrationData;
         private readonly string I2CControllerName = "I2C1";
 
         /*=========================================================================*/
@@ -60,7 +57,7 @@ namespace IotDeviceLibrary.BME280
 
         public BME280(byte address = 0x77, byte signature = 0x60) : base(address, signature)
         {
-            _calibrationData = new BME280CalibrationData();
+            CalibrationData = new BME280CalibrationData();
         }
         
         public override async Task Initialize()
@@ -130,26 +127,26 @@ namespace IotDeviceLibrary.BME280
         /**************************************************************************/
         private void ReadCoefficients()
         {
-            _calibrationData.DigT1 = Read16((byte)Registers.RegisterDigT1);
-            _calibrationData.DigT2 = (short)Read16((byte)Registers.RegisterDigT2);
-            _calibrationData.DigT3 = (short)Read16((byte)Registers.RegisterDigT3);
+            CalibrationData.DigT1 = Read16((byte)Registers.RegisterDigT1);
+            CalibrationData.DigT2 = (short)Read16((byte)Registers.RegisterDigT2);
+            CalibrationData.DigT3 = (short)Read16((byte)Registers.RegisterDigT3);
 
-            _calibrationData.DigP1 = Read16((byte)Registers.RegisterDigP1);
-            _calibrationData.DigP2 = (short)Read16((byte)Registers.RegisterDigP2);
-            _calibrationData.DigP3 = (short)Read16((byte)Registers.RegisterDigP3);
-            _calibrationData.DigP4 = (short)Read16((byte)Registers.RegisterDigP4);
-            _calibrationData.DigP5 = (short)Read16((byte)Registers.RegisterDigP5);
-            _calibrationData.DigP6 = (short)Read16((byte)Registers.RegisterDigP6);
-            _calibrationData.DigP7 = (short)Read16((byte)Registers.RegisterDigP7);
-            _calibrationData.DigP8 = (short)Read16((byte)Registers.RegisterDigP8);
-            _calibrationData.DigP9 = (short)Read16((byte)Registers.RegisterDigP9);
+            CalibrationData.DigP1 = Read16((byte)Registers.RegisterDigP1);
+            CalibrationData.DigP2 = (short)Read16((byte)Registers.RegisterDigP2);
+            CalibrationData.DigP3 = (short)Read16((byte)Registers.RegisterDigP3);
+            CalibrationData.DigP4 = (short)Read16((byte)Registers.RegisterDigP4);
+            CalibrationData.DigP5 = (short)Read16((byte)Registers.RegisterDigP5);
+            CalibrationData.DigP6 = (short)Read16((byte)Registers.RegisterDigP6);
+            CalibrationData.DigP7 = (short)Read16((byte)Registers.RegisterDigP7);
+            CalibrationData.DigP8 = (short)Read16((byte)Registers.RegisterDigP8);
+            CalibrationData.DigP9 = (short)Read16((byte)Registers.RegisterDigP9);
 
-            _calibrationData.DigH1 = Read8((byte)Registers.RegisterDigH1);
-            _calibrationData.DigH2 = (short)Read16((byte)Registers.RegisterDigH2);
-            _calibrationData.DigH3 = Read8((byte)Registers.RegisterDigH3);
-            _calibrationData.DigH4 = (byte)((Read8((byte)Registers.RegisterDigH4) << 4) | (Read8((byte)Registers.RegisterDigH4 + 1) & 0xF));
-            _calibrationData.DigH5 = (byte)((Read8((byte)Registers.RegisterDigH5 + 1) << 4) | (Read8((byte)Registers.RegisterDigH5) >> 4));
-            _calibrationData.DigH6 = (byte)Read8((byte)Registers.RegisterDigH6);
+            CalibrationData.DigH1 = Read8((byte)Registers.RegisterDigH1);
+            CalibrationData.DigH2 = (short)Read16((byte)Registers.RegisterDigH2);
+            CalibrationData.DigH3 = Read8((byte)Registers.RegisterDigH3);
+            CalibrationData.DigH4 = (byte)((Read8((byte)Registers.RegisterDigH4) << 4) | (Read8((byte)Registers.RegisterDigH4 + 1) & 0xF));
+            CalibrationData.DigH5 = (byte)((Read8((byte)Registers.RegisterDigH5 + 1) << 4) | (Read8((byte)Registers.RegisterDigH5) >> 4));
+            CalibrationData.DigH6 = (byte)Read8((byte)Registers.RegisterDigH6);
         }
 
         /**************************************************************************/
@@ -166,15 +163,15 @@ namespace IotDeviceLibrary.BME280
             uint adc_T = Read24((byte)Registers.RegisterTempdata);
             adc_T >>= 4;
 
-            var1 = ((((adc_T >> 3) - _calibrationData.DigT1 << 1)) * ((uint)_calibrationData.DigT2)) >> 11;
+            var1 = ((((adc_T >> 3) - CalibrationData.DigT1 << 1)) * ((uint)CalibrationData.DigT2)) >> 11;
 
-            var2 = (((((adc_T >> 4) - (_calibrationData.DigT1)) *
-                   ((adc_T >> 4) - (_calibrationData.DigT1))) >> 12) *
-                 ((uint)_calibrationData.DigT3)) >> 14;
+            var2 = (((((adc_T >> 4) - (CalibrationData.DigT1)) *
+                   ((adc_T >> 4) - (CalibrationData.DigT1))) >> 12) *
+                 ((uint)CalibrationData.DigT3)) >> 14;
 
-            _tFine = var1 + var2;
+            TFine = var1 + var2;
 
-            float T = (_tFine * 5 + 128) >> 8;
+            float T = (TFine * 5 + 128) >> 8;
             return T / 100;
         }
 
@@ -192,13 +189,13 @@ namespace IotDeviceLibrary.BME280
             uint adc_P = Read24((byte)Registers.RegisterPressuredata);
             adc_P >>= 4;
 
-            var1 = ((ulong)_tFine) - 128000;
-            var2 = var1 * var1 * (ulong)_calibrationData.DigP6;
-            var2 = var2 + ((var1 * (ulong)_calibrationData.DigP5) << 17);
-            var2 = var2 + (((ulong)_calibrationData.DigP4) << 35);
-            var1 = ((var1 * var1 * (ulong)_calibrationData.DigP3) >> 8) +
-              ((var1 * (ulong)_calibrationData.DigP2) << 12);
-            var1 = (((((ulong)1) << 47) + var1)) * ((ulong)_calibrationData.DigP1) >> 33;
+            var1 = ((ulong)TFine) - 128000;
+            var2 = var1 * var1 * (ulong)CalibrationData.DigP6;
+            var2 = var2 + ((var1 * (ulong)CalibrationData.DigP5) << 17);
+            var2 = var2 + (((ulong)CalibrationData.DigP4) << 35);
+            var1 = ((var1 * var1 * (ulong)CalibrationData.DigP3) >> 8) +
+              ((var1 * (ulong)CalibrationData.DigP2) << 12);
+            var1 = (((((ulong)1) << 47) + var1)) * ((ulong)CalibrationData.DigP1) >> 33;
 
             if (var1 == 0)
             {
@@ -206,10 +203,10 @@ namespace IotDeviceLibrary.BME280
             }
             p = 1048576 - adc_P;
             p = (((p << 31) - var2) * 3125) / var1;
-            var1 = (((ulong)_calibrationData.DigP9) * (p >> 13) * (p >> 13)) >> 25;
-            var2 = (((ulong)_calibrationData.DigP8) * p) >> 19;
+            var1 = (((ulong)CalibrationData.DigP9) * (p >> 13) * (p >> 13)) >> 25;
+            var2 = (((ulong)CalibrationData.DigP8) * p) >> 19;
 
-            p = ((p + var1 + var2) >> 8) + (((ulong)_calibrationData.DigP7) << 4);
+            p = ((p + var1 + var2) >> 8) + (((ulong)CalibrationData.DigP7) << 4);
             return (float)p / 256;
         }
 
@@ -226,16 +223,16 @@ namespace IotDeviceLibrary.BME280
 
             uint v_x1_u32r;
 
-            v_x1_u32r = (_tFine - ((uint)76800));
+            v_x1_u32r = (TFine - ((uint)76800));
 
-            v_x1_u32r = (uint)(((((adc_H << 14) - (((uint)_calibrationData.DigH4) << 20) -
-                    (((uint)_calibrationData.DigH5) * v_x1_u32r)) + ((uint)16384)) >> 15) *
-                     (((((((v_x1_u32r * ((uint)_calibrationData.DigH6)) >> 10) *
-                      (((v_x1_u32r * ((uint)_calibrationData.DigH3)) >> 11) + ((uint)32768))) >> 10) +
-                    ((uint)2097152)) * ((uint)_calibrationData.DigH2) + 8192) >> 14));
+            v_x1_u32r = (uint)(((((adc_H << 14) - (((uint)CalibrationData.DigH4) << 20) -
+                    (((uint)CalibrationData.DigH5) * v_x1_u32r)) + ((uint)16384)) >> 15) *
+                     (((((((v_x1_u32r * ((uint)CalibrationData.DigH6)) >> 10) *
+                      (((v_x1_u32r * ((uint)CalibrationData.DigH3)) >> 11) + ((uint)32768))) >> 10) +
+                    ((uint)2097152)) * ((uint)CalibrationData.DigH2) + 8192) >> 14));
 
             v_x1_u32r = (v_x1_u32r - (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) *
-                           ((uint)_calibrationData.DigH1)) >> 4));
+                           ((uint)CalibrationData.DigH1)) >> 4));
 
             v_x1_u32r = (v_x1_u32r < 0) ? 0 : v_x1_u32r;
             v_x1_u32r = (v_x1_u32r > 419430400) ? 419430400 : v_x1_u32r;

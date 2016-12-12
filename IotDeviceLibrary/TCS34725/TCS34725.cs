@@ -64,16 +64,14 @@ namespace IotDeviceLibrary.TCS34725
         }
 
         private readonly byte CommandBit = 0x80;
-
         private const string I2CControllerName = "I2C1";
-
-        private TCS34725_Gain _tcs34725Gain;
-        private TCS34725_IntegrationTime _tcs34725IntegrationTime;
+        private TCS34725_Gain Tcs34725Gain;
+        private TCS34725_IntegrationTime Tcs34725IntegrationTime;
 
         public TCS34725(TCS34725_IntegrationTime time = TCS34725_IntegrationTime.T2_4MS, TCS34725_Gain gain = TCS34725_Gain.GAIN_1X, byte address = 0x29, byte commandbit = 0x80) : base(address, 0)
         {
-            _tcs34725IntegrationTime = time;
-            _tcs34725Gain = gain;
+            Tcs34725IntegrationTime = time;
+            Tcs34725Gain = gain;
             CommandBit = commandbit;
         }
 
@@ -132,12 +130,12 @@ namespace IotDeviceLibrary.TCS34725
 
         public void SetGain(TCS34725_Gain gain)
         {
-            _tcs34725Gain = gain;
+            Tcs34725Gain = gain;
         }
 
         public void SetIntegrationTime(TCS34725_IntegrationTime integrationTime)
         {
-            _tcs34725IntegrationTime = integrationTime;
+            Tcs34725IntegrationTime = integrationTime;
         }
 
         private short ReadShort(byte reg)
@@ -171,7 +169,7 @@ namespace IotDeviceLibrary.TCS34725
             byte b = Read8((byte)Registers.TCS34725_BDATAL);
 
             /* Set a delay for the integration time */
-            switch (_tcs34725IntegrationTime)
+            switch (Tcs34725IntegrationTime)
             {
                 case TCS34725_IntegrationTime.T2_4MS:
                     //delay(3);

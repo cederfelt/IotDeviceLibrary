@@ -9,9 +9,6 @@ namespace IotDeviceLibrary.BMP280
     public class BMP280 : Device, IBMP280
     {
         //The BMP280 register addresses according the the datasheet: http://www.adafruit.com/datasheets/BST-BMP280-DS001-11.pdf
-
-        //t_fine carries fine temperature as global value
-        private int t_fine = int.MinValue;
         private enum Registers : byte
         {
             REGISTER_DIG_T1 = 0x88,
@@ -51,8 +48,9 @@ namespace IotDeviceLibrary.BMP280
         };
 
         private const string I2CControllerName = "I2C1";
-
-        private BMP280CalibrationData _calibrationData;
+        //t_fine carries fine temperature as global value
+        private int TFine = int.MinValue;
+        private BMP280CalibrationData CalibrationData;
 
         public BMP280(byte address = 0x77, byte signature = 0x58) : base(address, signature)
         {
@@ -104,7 +102,7 @@ namespace IotDeviceLibrary.BMP280
             initialised = true;
 
             //Read the coefficients table
-            _calibrationData = ReadCoefficients();
+            CalibrationData = ReadCoefficients();
 
             //Write control register
             WriteControlRegister();
@@ -155,7 +153,7 @@ namespace IotDeviceLibrary.BMP280
             if (!initialised) Begin();
 
             //Read the temperature first to load the t_fine value for compensation
-            if (t_fine == int.MinValue)
+            if (TFine == int.MinValue)
             {
                 ReadTemperature();
             }
@@ -202,25 +200,25 @@ namespace IotDeviceLibrary.BMP280
         private BMP280CalibrationData ReadCoefficients()
         {
             // 16 bit calibration data is stored as Little Endian, the helper method will do the byte swap.
-            _calibrationData = new BMP280CalibrationData();
+            CalibrationData = new BMP280CalibrationData();
 
             // Read temperature calibration data
-            _calibrationData.DigT1 = Read16((byte)Registers.REGISTER_DIG_T1);
-            _calibrationData.DigT2 = (short)Read16((byte)Registers.REGISTER_DIG_T2);
-            _calibrationData.DigT3 = (short)Read16((byte)Registers.REGISTER_DIG_T3);
+            CalibrationData.DigT1 = Read16((byte)Registers.REGISTER_DIG_T1);
+            CalibrationData.DigT2 = (short)Read16((byte)Registers.REGISTER_DIG_T2);
+            CalibrationData.DigT3 = (short)Read16((byte)Registers.REGISTER_DIG_T3);
 
             // Read presure calibration data
-            _calibrationData.DigP1 = Read16((byte)Registers.REGISTER_DIG_P1);
-            _calibrationData.DigP2 = (short)Read16((byte)Registers.REGISTER_DIG_P2);
-            _calibrationData.DigP3 = (short)Read16((byte)Registers.REGISTER_DIG_P3);
-            _calibrationData.DigP4 = (short)Read16((byte)Registers.REGISTER_DIG_P4);
-            _calibrationData.DigP5 = (short)Read16((byte)Registers.REGISTER_DIG_P5);
-            _calibrationData.DigP6 = (short)Read16((byte)Registers.REGISTER_DIG_P6);
-            _calibrationData.DigP7 = (short)Read16((byte)Registers.REGISTER_DIG_P7);
-            _calibrationData.DigP8 = (short)Read16((byte)Registers.REGISTER_DIG_P8);
-            _calibrationData.DigP9 = (short)Read16((byte)Registers.REGISTER_DIG_P9);
+            CalibrationData.DigP1 = Read16((byte)Registers.REGISTER_DIG_P1);
+            CalibrationData.DigP2 = (short)Read16((byte)Registers.REGISTER_DIG_P2);
+            CalibrationData.DigP3 = (short)Read16((byte)Registers.REGISTER_DIG_P3);
+            CalibrationData.DigP4 = (short)Read16((byte)Registers.REGISTER_DIG_P4);
+            CalibrationData.DigP5 = (short)Read16((byte)Registers.REGISTER_DIG_P5);
+            CalibrationData.DigP6 = (short)Read16((byte)Registers.REGISTER_DIG_P6);
+            CalibrationData.DigP7 = (short)Read16((byte)Registers.REGISTER_DIG_P7);
+            CalibrationData.DigP8 = (short)Read16((byte)Registers.REGISTER_DIG_P8);
+            CalibrationData.DigP9 = (short)Read16((byte)Registers.REGISTER_DIG_P9);
 
-            return _calibrationData;
+            return CalibrationData;
         }
 
         //Method to return the temperature in DegC. Resolution is 0.01 DegC. Output value of “5123” equals 51.23 DegC.
@@ -229,10 +227,10 @@ namespace IotDeviceLibrary.BMP280
             double var1, var2, T;
 
             //The temperature is calculated using the compensation formula in the BMP280 datasheet
-            var1 = ((adc_T / 16384.0) - (_calibrationData.DigT1 / 1024.0)) * _calibrationData.DigT2;
-            var2 = ((adc_T / 131072.0) - (_calibrationData.DigT1 / 8192.0)) * _calibrationData.DigT3;
+            var1 = ((adc_T / 16384.0) - (CalibrationData.DigT1 / 1024.0)) * CalibrationData.DigT2;
+            var2 = ((adc_T / 131072.0) - (CalibrationData.DigT1 / 8192.0)) * CalibrationData.DigT3;
 
-            t_fine = (int)(var1 + var2);
+            TFine = (int)(var1 + var2);
 
             T = (var1 + var2) / 5120.0;
             return T;
@@ -245,12 +243,12 @@ namespace IotDeviceLibrary.BMP280
             long var1, var2, p;
 
             //The pressure is calculated using the compensation formula in the BMP280 datasheet
-            var1 = t_fine - 128000;
-            var2 = var1 * var1 * (long)_calibrationData.DigP6;
-            var2 = var2 + ((var1 * (long)_calibrationData.DigP5) << 17);
-            var2 = var2 + ((long)_calibrationData.DigP4 << 35);
-            var1 = ((var1 * var1 * (long)_calibrationData.DigP3) >> 8) + ((var1 * (long)_calibrationData.DigP2) << 12);
-            var1 = (((((long)1 << 47) + var1)) * (long)_calibrationData.DigP1) >> 33;
+            var1 = TFine - 128000;
+            var2 = var1 * var1 * (long)CalibrationData.DigP6;
+            var2 = var2 + ((var1 * (long)CalibrationData.DigP5) << 17);
+            var2 = var2 + ((long)CalibrationData.DigP4 << 35);
+            var1 = ((var1 * var1 * (long)CalibrationData.DigP3) >> 8) + ((var1 * (long)CalibrationData.DigP2) << 12);
+            var1 = (((((long)1 << 47) + var1)) * (long)CalibrationData.DigP1) >> 33;
             if (var1 == 0)
             {
                 Debug.WriteLine("BMP280_compensate_P_Int64 Jump out to avoid / 0");
@@ -259,9 +257,9 @@ namespace IotDeviceLibrary.BMP280
             //Perform calibration operations as per datasheet: http://www.adafruit.com/datasheets/BST-BMP280-DS001-11.pdf
             p = 1048576 - adc_P;
             p = (((p << 31) - var2) * 3125) / var1;
-            var1 = ((long)_calibrationData.DigP9 * (p >> 13) * (p >> 13)) >> 25;
-            var2 = ((long)_calibrationData.DigP8 * p) >> 19;
-            p = ((p + var1 + var2) >> 8) + ((long)_calibrationData.DigP7 << 4);
+            var1 = ((long)CalibrationData.DigP9 * (p >> 13) * (p >> 13)) >> 25;
+            var2 = ((long)CalibrationData.DigP8 * p) >> 19;
+            p = ((p + var1 + var2) >> 8) + ((long)CalibrationData.DigP7 << 4);
             return p;
         }
 
