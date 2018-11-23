@@ -104,8 +104,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-
-  <ItemGroup>
     <Compile Include="BME280\BME280.cs" />
     <Compile Include="BME280\BME280CalibrationData.cs" />
     <Compile Include="BME280\IBME280.cs" />
