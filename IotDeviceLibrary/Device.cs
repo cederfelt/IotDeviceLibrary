@@ -10,7 +10,7 @@ namespace IotDeviceLibrary
         protected readonly byte Address;
         protected readonly byte Signature;
 
-        public abstract Task Initialize();
+        public abstract Task InitializeAsync();
         public abstract void Begin();
 
         protected bool initialised = false;

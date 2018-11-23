@@ -56,7 +56,7 @@ namespace IotDeviceLibrary.BMP280
         {
         }
 
-        public override async Task Initialize()
+        public override async Task InitializeAsync()
         {
             Debug.WriteLine("BMP280 initialized");
             try

@@ -75,7 +75,7 @@ namespace IotDeviceLibrary.TCS34725
             CommandBit = commandbit;
         }
 
-        public override async Task Initialize()
+        public override async Task InitializeAsync()
         {
             Debug.WriteLine("TCS34725 initialized");
             try

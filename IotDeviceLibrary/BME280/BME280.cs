@@ -60,7 +60,7 @@ namespace IotDeviceLibrary.BME280
             CalibrationData = new BME280CalibrationData();
         }
         
-        public override async Task Initialize()
+        public override async Task InitializeAsync()
         {
             Debug.WriteLine("BME280 initialized");
             try
