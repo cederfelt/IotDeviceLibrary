@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IotDeviceLibrary", "IotDeviceLibrary\IotDeviceLibrary.csproj", "{DC602599-BF0C-4231-A459-2E369A205AF1}"
 EndProject
@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BMP280", "BMP280\BMP280.csproj", "{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,8 +40,27 @@ Global
 		{DC602599-BF0C-4231-A459-2E369A205AF1}.Release|x64.Build.0 = Release|x64
 		{DC602599-BF0C-4231-A459-2E369A205AF1}.Release|x86.ActiveCfg = Release|x86
 		{DC602599-BF0C-4231-A459-2E369A205AF1}.Release|x86.Build.0 = Release|x86
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Debug|ARM.Build.0 = Debug|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Debug|x64.Build.0 = Debug|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Debug|x86.Build.0 = Debug|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Release|ARM.ActiveCfg = Release|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Release|ARM.Build.0 = Release|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Release|x64.ActiveCfg = Release|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Release|x64.Build.0 = Release|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Release|x86.ActiveCfg = Release|Any CPU
+		{F9BC7FA1-E3D6-4273-8EE1-7B9423DA8B53}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ACA0E4F6-925C-431D-9E0D-FCC5BA8C1C77}
 	EndGlobalSection
 EndGlobal
